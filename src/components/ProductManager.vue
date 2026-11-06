@@ -1,5 +1,5 @@
 <script setup>
-import { getProducts } from '../api/Products';
+import { createProduct, getProducts } from '../api/Products';
 </script>
 
 <script>
@@ -7,12 +7,24 @@ export default {
     name: "ProductManager",
     data() {
         return {
-            products: []
+            products: [],
+            newProduct: {
+                name: "",
+                price: "",
+                inStock: false,
+            }
         }
     },
     methods: {
         async loadProducts() {
             this.products = await getProducts();
+        },
+        async addProduct(product) {
+            await createProduct(product);
+            await this.loadProducts();
+        },
+        async submitCreatedProduct() {
+            await this.addProduct(this.newProduct)
         }
     },
     mounted() {
@@ -43,5 +55,22 @@ export default {
                 </tr>
             </tbody>
         </table>
+
+        <form @submit.prevent="submitCreatedProduct" class="flex flex-col gap-3 my-5 border-2 border-stone-200 rounded-2xl p-5">
+            <label for="name">Név</label>
+            <input class="border-2 border-stone-200 rounded-xl px-2 py-1" type="text" name="name"
+                v-model="newProduct.name" placeholder="Laptop..." />
+
+            <label for="price">Ár</label>
+            <input class="border-2 border-stone-200 rounded-xl px-2 py-1" type="number" name="price"
+                v-model.number="newProduct.price" placeholder="1 500 Ft" />
+
+            <div class="flex justify-between">
+                <label for="inStock">Raktáron</label>
+                <input type="checkbox" name="inStock" v-model="newProduct.inStock" />
+            </div>
+
+            <button type="submit" class="border-2 border-stone-200 rounded-x1 py-2 cursor-pointer">Létrehozás</button>
+        </form>
     </main>
 </template>
